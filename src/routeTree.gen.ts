@@ -20,6 +20,7 @@ import { Route as DocsRouteImport } from './routes/docs'
 import { Route as ConsoleRouteImport } from './routes/console'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AtlasRouteImport } from './routes/atlas'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CspIndexRouteImport } from './routes/csp.index'
 import { Route as WikisSlugRouteImport } from './routes/wikis.$slug'
@@ -28,6 +29,7 @@ import { Route as CspOntologyRouteImport } from './routes/csp.ontology'
 import { Route as CspIngestionRouteImport } from './routes/csp.ingestion'
 import { Route as CspCanonRouteImport } from './routes/csp.canon'
 import { Route as CspAssemblyRouteImport } from './routes/csp.assembly'
+import { Route as AdminCanonRouteImport } from './routes/admin.canon'
 
 const WikisRoute = WikisRouteImport.update({
   id: '/wikis',
@@ -84,6 +86,11 @@ const AtlasRoute = AtlasRouteImport.update({
   path: '/atlas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -124,9 +131,15 @@ const CspAssemblyRoute = CspAssemblyRouteImport.update({
   path: '/csp/assembly',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminCanonRoute = AdminCanonRouteImport.update({
+  id: '/canon',
+  path: '/canon',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/atlas': typeof AtlasRoute
   '/auth': typeof AuthRoute
   '/console': typeof ConsoleRoute
@@ -138,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/nexus': typeof NexusRoute
   '/unification': typeof UnificationRoute
   '/wikis': typeof WikisRouteWithChildren
+  '/admin/canon': typeof AdminCanonRoute
   '/csp/assembly': typeof CspAssemblyRoute
   '/csp/canon': typeof CspCanonRoute
   '/csp/ingestion': typeof CspIngestionRoute
@@ -148,6 +162,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/atlas': typeof AtlasRoute
   '/auth': typeof AuthRoute
   '/console': typeof ConsoleRoute
@@ -159,6 +174,7 @@ export interface FileRoutesByTo {
   '/nexus': typeof NexusRoute
   '/unification': typeof UnificationRoute
   '/wikis': typeof WikisRouteWithChildren
+  '/admin/canon': typeof AdminCanonRoute
   '/csp/assembly': typeof CspAssemblyRoute
   '/csp/canon': typeof CspCanonRoute
   '/csp/ingestion': typeof CspIngestionRoute
@@ -170,6 +186,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/atlas': typeof AtlasRoute
   '/auth': typeof AuthRoute
   '/console': typeof ConsoleRoute
@@ -181,6 +198,7 @@ export interface FileRoutesById {
   '/nexus': typeof NexusRoute
   '/unification': typeof UnificationRoute
   '/wikis': typeof WikisRouteWithChildren
+  '/admin/canon': typeof AdminCanonRoute
   '/csp/assembly': typeof CspAssemblyRoute
   '/csp/canon': typeof CspCanonRoute
   '/csp/ingestion': typeof CspIngestionRoute
@@ -193,6 +211,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/atlas'
     | '/auth'
     | '/console'
@@ -204,6 +223,7 @@ export interface FileRouteTypes {
     | '/nexus'
     | '/unification'
     | '/wikis'
+    | '/admin/canon'
     | '/csp/assembly'
     | '/csp/canon'
     | '/csp/ingestion'
@@ -214,6 +234,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/atlas'
     | '/auth'
     | '/console'
@@ -225,6 +246,7 @@ export interface FileRouteTypes {
     | '/nexus'
     | '/unification'
     | '/wikis'
+    | '/admin/canon'
     | '/csp/assembly'
     | '/csp/canon'
     | '/csp/ingestion'
@@ -235,6 +257,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/atlas'
     | '/auth'
     | '/console'
@@ -246,6 +269,7 @@ export interface FileRouteTypes {
     | '/nexus'
     | '/unification'
     | '/wikis'
+    | '/admin/canon'
     | '/csp/assembly'
     | '/csp/canon'
     | '/csp/ingestion'
@@ -257,6 +281,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AtlasRoute: typeof AtlasRoute
   AuthRoute: typeof AuthRoute
   ConsoleRoute: typeof ConsoleRoute
@@ -354,6 +379,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AtlasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -410,8 +442,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CspAssemblyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/canon': {
+      id: '/admin/canon'
+      path: '/canon'
+      fullPath: '/admin/canon'
+      preLoaderRoute: typeof AdminCanonRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminCanonRoute: typeof AdminCanonRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminCanonRoute: AdminCanonRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface DocsRouteChildren {
   DocsSlugRoute: typeof DocsSlugRoute
@@ -435,6 +484,7 @@ const WikisRouteWithChildren = WikisRoute._addFileChildren(WikisRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   AtlasRoute: AtlasRoute,
   AuthRoute: AuthRoute,
   ConsoleRoute: ConsoleRoute,

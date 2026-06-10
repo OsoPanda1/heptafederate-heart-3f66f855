@@ -1,4 +1,4 @@
-import type { ReactNode } from "@react";
+import type { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Activity,
@@ -58,6 +58,10 @@ const KNOWLEDGE: NavItem[] = [
   { to: "/docs", label: "Documentation OS", icon: BookOpen },
   { to: "/wikis", label: "Wikis Canónicas", icon: BookOpen, badge: "5" },
   { to: "/auth", label: "Identity Layer", icon: Fingerprint },
+];
+
+const ADMIN: NavItem[] = [
+  { to: "/admin/canon", label: "Canon Consistency", icon: ShieldCheck },
 ];
 
 type NavGroupProps = {
@@ -139,6 +143,7 @@ function Sidebar() {
         <NavGroup title="Atlas Core™ · CSP-α" items={ATLAS_CORE} />
         <NavGroup title="Constitutional Runtime" items={RUNTIME} />
         <NavGroup title="Knowledge & Identity" items={KNOWLEDGE} />
+        <NavGroup title="Admin" items={ADMIN} />
       </div>
       <div className="border-t border-sidebar-border px-5 py-4 text-[11px] text-muted-foreground">
         <div className="flex items-center gap-2">

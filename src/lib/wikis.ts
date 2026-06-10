@@ -13,6 +13,8 @@ export interface WikiDoc {
   description: string;
   lines: number;
   body: string;
+  tags: string[];
+  searchIndex: string;
 }
 
 const META: Record<string, { repo: string; title: string; description: string }> = {
@@ -84,6 +86,37 @@ const NG_META = {
 
 Object.assign(META, NG_META);
 
+const TAG_RULES: Array<{ tag: string; patterns: RegExp[] }> = [
+  { tag: "arquitectura", patterns: [/arquitectura|architecture|c4 |stack/i] },
+  { tag: "gobernanza", patterns: [/gobernanza|governance|rfc|policy|polic[ií]ticas/i] },
+  { tag: "seguridad", patterns: [/seguridad|security|zero[- ]trust|sbom|slsa|pqc/i] },
+  { tag: "federacion", patterns: [/federaci[oó]n|federation|heptafedera|nodo/i] },
+  { tag: "ia", patterns: [/isabella|tamvai|llm|inteligencia artificial| ia /i] },
+  { tag: "xr", patterns: [/\bxr\b|metaverso|dreamspace|vr |3d|4d /i] },
+  { tag: "identidad", patterns: [/orcid|isni|did:|ssi|vc |credencial|identidad/i] },
+  { tag: "infraestructura", patterns: [/docker|kubernetes|k8s|ci\/cd|pipeline|deploy/i] },
+  { tag: "economia", patterns: [/odoo|econom[ií]a|wallet|payment|stripe|membership/i] },
+  { tag: "wiki", patterns: [/wiki|documentaci[oó]n|markdown/i] },
+  { tag: "atlas", patterns: [/atlas|grafo|ontolog/i] },
+  { tag: "kernel", patterns: [/kernel|md-?x[456]|hoyo negro|runtime/i] },
+];
+
+function deriveTags(title: string, body: string): string[] {
+  const haystack = `${title}\n${body.slice(0, 8000)}`;
+  const tags = TAG_RULES.filter((r) => r.patterns.some((p) => p.test(haystack))).map(
+    (r) => r.tag,
+  );
+  return tags.length ? tags : ["canon"];
+}
+
+function buildSearchIndex(title: string, description: string, body: string): string {
+  return `${title}\n${description}\n${body}`
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/[#>*_`~\-|]/g, " ")
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+}
+
 export const WIKIS: WikiDoc[] = Object.entries(RAW)
   .map(([path, body]) => {
     const slug = path.split("/").pop()!.replace(/\.md$/, "");
@@ -95,10 +128,39 @@ export const WIKIS: WikiDoc[] = Object.entries(RAW)
       description: meta.description,
       lines: body.split("\n").length,
       body,
+      tags: deriveTags(meta.title, body),
+      searchIndex: buildSearchIndex(meta.title, meta.description, body),
     };
   })
   .sort((a, b) => a.title.localeCompare(b.title));
 
 export function getWiki(slug: string): WikiDoc | undefined {
   return WIKIS.find((w) => w.slug === slug);
+}
+
+export const ALL_TAGS: string[] = Array.from(
+  new Set(WIKIS.flatMap((w) => w.tags)),
+).sort();
+
+export function searchWikis(query: string, tag?: string | null): WikiDoc[] {
+  const q = query.trim().toLowerCase();
+  return WIKIS.filter((w) => {
+    if (tag && !w.tags.includes(tag)) return false;
+    if (!q) return true;
+    return w.searchIndex.includes(q);
+  });
+}
+
+export function relatedWikis(slug: string, limit = 4): WikiDoc[] {
+  const me = getWiki(slug);
+  if (!me) return [];
+  return WIKIS.filter((w) => w.slug !== slug)
+    .map((w) => ({
+      w,
+      score: w.tags.filter((t) => me.tags.includes(t)).length,
+    }))
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((x) => x.w);
 }

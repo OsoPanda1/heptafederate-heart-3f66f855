@@ -36,3 +36,30 @@ services:
     command: >
       sh -c "npm install --no-audit --no-fund && npm run build"
     profiles: ["ingest"]
+
+  nextgen-backend:
+    build:
+      context: ./tamv-atlas-nextgen
+      dockerfile: backend/Dockerfile
+    image: tamv/nextgen-backend:latest
+    container_name: tamv-nextgen-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      ATLAS_OUT_DIR: /shared/atlas-feed
+    volumes:
+      - ./tamv-atlas-nextgen/data:/app/backend/data
+      - atlas-feed:/shared/atlas-feed
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    profiles: ["full"]
+
+volumes:
+  atlas-feed:
