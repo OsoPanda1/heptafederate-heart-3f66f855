@@ -9,6 +9,7 @@
   },
   "scripts": {
     "discover": "tsx ingestion/discover.ts",
+    "from-nextgen": "tsx ingestion/from-nextgen.ts",
     "fetch": "tsx ingestion/fetch.ts",
     "extract": "tsx ingestion/extract.ts",
     "normalize": "tsx ingestion/normalize.ts",
@@ -16,7 +17,7 @@
     "relate": "tsx ingestion/relate.ts",
     "publish": "tsx ingestion/publish.ts",
     "redact": "tsx ingestion/redact.ts",
-    "build": "npm run discover && npm run fetch && npm run extract && npm run normalize && npm run classify && npm run relate && npm run redact && npm run publish",
+    "build": "npm run discover && npm run fetch && npm run extract && npm run from-nextgen && npm run normalize && npm run classify && npm run relate && npm run redact && npm run publish",
     "validate": "tsx ingestion/publish.ts --validate",
     "security:scan": "tsx ingestion/redact.ts"
   },
