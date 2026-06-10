@@ -29,6 +29,7 @@ import { Route as CspOntologyRouteImport } from './routes/csp.ontology'
 import { Route as CspIngestionRouteImport } from './routes/csp.ingestion'
 import { Route as CspCanonRouteImport } from './routes/csp.canon'
 import { Route as CspAssemblyRouteImport } from './routes/csp.assembly'
+import { Route as AdminCanonRouteImport } from './routes/admin.canon'
 
 const WikisRoute = WikisRouteImport.update({
   id: '/wikis',
@@ -130,10 +131,15 @@ const CspAssemblyRoute = CspAssemblyRouteImport.update({
   path: '/csp/assembly',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminCanonRoute = AdminCanonRouteImport.update({
+  id: '/canon',
+  path: '/canon',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/atlas': typeof AtlasRoute
   '/auth': typeof AuthRoute
   '/console': typeof ConsoleRoute
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/nexus': typeof NexusRoute
   '/unification': typeof UnificationRoute
   '/wikis': typeof WikisRouteWithChildren
+  '/admin/canon': typeof AdminCanonRoute
   '/csp/assembly': typeof CspAssemblyRoute
   '/csp/canon': typeof CspCanonRoute
   '/csp/ingestion': typeof CspIngestionRoute
@@ -155,7 +162,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/atlas': typeof AtlasRoute
   '/auth': typeof AuthRoute
   '/console': typeof ConsoleRoute
@@ -167,6 +174,7 @@ export interface FileRoutesByTo {
   '/nexus': typeof NexusRoute
   '/unification': typeof UnificationRoute
   '/wikis': typeof WikisRouteWithChildren
+  '/admin/canon': typeof AdminCanonRoute
   '/csp/assembly': typeof CspAssemblyRoute
   '/csp/canon': typeof CspCanonRoute
   '/csp/ingestion': typeof CspIngestionRoute
@@ -178,7 +186,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/atlas': typeof AtlasRoute
   '/auth': typeof AuthRoute
   '/console': typeof ConsoleRoute
@@ -190,6 +198,7 @@ export interface FileRoutesById {
   '/nexus': typeof NexusRoute
   '/unification': typeof UnificationRoute
   '/wikis': typeof WikisRouteWithChildren
+  '/admin/canon': typeof AdminCanonRoute
   '/csp/assembly': typeof CspAssemblyRoute
   '/csp/canon': typeof CspCanonRoute
   '/csp/ingestion': typeof CspIngestionRoute
@@ -214,6 +223,7 @@ export interface FileRouteTypes {
     | '/nexus'
     | '/unification'
     | '/wikis'
+    | '/admin/canon'
     | '/csp/assembly'
     | '/csp/canon'
     | '/csp/ingestion'
@@ -236,6 +246,7 @@ export interface FileRouteTypes {
     | '/nexus'
     | '/unification'
     | '/wikis'
+    | '/admin/canon'
     | '/csp/assembly'
     | '/csp/canon'
     | '/csp/ingestion'
@@ -258,6 +269,7 @@ export interface FileRouteTypes {
     | '/nexus'
     | '/unification'
     | '/wikis'
+    | '/admin/canon'
     | '/csp/assembly'
     | '/csp/canon'
     | '/csp/ingestion'
@@ -269,7 +281,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AtlasRoute: typeof AtlasRoute
   AuthRoute: typeof AuthRoute
   ConsoleRoute: typeof ConsoleRoute
@@ -430,8 +442,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CspAssemblyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/canon': {
+      id: '/admin/canon'
+      path: '/canon'
+      fullPath: '/admin/canon'
+      preLoaderRoute: typeof AdminCanonRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminCanonRoute: typeof AdminCanonRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminCanonRoute: AdminCanonRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface DocsRouteChildren {
   DocsSlugRoute: typeof DocsSlugRoute
@@ -455,7 +484,7 @@ const WikisRouteWithChildren = WikisRoute._addFileChildren(WikisRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   AtlasRoute: AtlasRoute,
   AuthRoute: AuthRoute,
   ConsoleRoute: ConsoleRoute,
