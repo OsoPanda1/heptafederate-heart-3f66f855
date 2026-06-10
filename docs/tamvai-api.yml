@@ -1,0 +1,151 @@
+openapi: 3.1.0
+info:
+  title: TAMVAI / Isabella AI API
+  version: "1.0.0"
+  description: >
+    API soberana de orquestación de IA del ecosistema TAMV
+    (Isabella Villaseñor AI, modelos MD-X5/MD-X6).
+    Implementada por isabella-gateway (Fastify + routing dinámico de modelos),
+    desplegada como servicio externo al monorepo principal.
+  contact:
+    name: TAMV Custodio
+    email: custodio@tamv.online
+
+servers:
+  - url: https://api.tamv.online
+    description: Producción
+  - url: http://localhost:8081
+    description: Local dev (isabella-gateway)
+
+paths:
+  /v1/ai/isabella/chat:
+    post:
+      tags: [AI]
+      summary: Chat conversacional con Isabella AI (streaming opcional).
+      operationId: postIsabellaChat
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+      responses:
+        "200":
+          description: Respuesta no-stream (modo simple).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+        "401": { description: Unauthorized }
+        "429": { description: Rate limit exceeded }
+      x-streaming: true
+
+  /v1/ai/isabella/recommendation:
+    post:
+      tags: [AI]
+      summary: Recomendación personalizada de Isabella AI para UI/landing.
+      operationId: postIsabellaRecommendation
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecommendationRequest"
+      responses:
+        "200":
+          description: Recomendación generada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IsabellaRecommendation"
+
+  /health:
+    get:
+      tags: [System]
+      summary: Healthcheck del gateway.
+      operationId: getHealth
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [ok] }
+                  uptime: { type: number }
+
+components:
+  schemas:
+    Message:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [system, user, assistant]
+        content:
+          type: string
+      required: [role, content]
+
+    ChatRequest:
+      type: object
+      properties:
+        sessionId: { type: string }
+        userId: { type: string, nullable: true }
+        messages:
+          type: array
+          items: { $ref: "#/components/schemas/Message" }
+          minItems: 1
+        locale: { type: string, default: "es-MX" }
+        mode:
+          type: string
+          enum: [default, tutor, mediator, territorial]
+          default: default
+        stream: { type: boolean, default: false }
+      required: [messages]
+
+    ChatChunk:
+      type: object
+      properties:
+        chunkId: { type: string }
+        text: { type: string }
+        emotion: { type: string, nullable: true }
+        sequence: { type: integer }
+      required: [chunkId, text, sequence]
+
+    ChatResponse:
+      type: object
+      properties:
+        conversationId: { type: string }
+        chunks:
+          type: array
+          items: { $ref: "#/components/schemas/ChatChunk" }
+      required: [conversationId, chunks]
+
+    RecommendationRequest:
+      type: object
+      properties:
+        userId: { type: string, nullable: true }
+        context:
+          type: object
+          additionalProperties: true
+
+    IsabellaRecommendation:
+      type: object
+      properties:
+        title: { type: string }
+        subtitle: { type: string }
+        ctaLabel: { type: string }
+        ctaHref: { type: string }
+        highlightPillar: { type: string }
+      required: [title, subtitle, ctaLabel, ctaHref, highlightPillar]
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
