@@ -36,6 +36,7 @@ const PRIMARY: NavItem[] = [
   { to: "/console", label: "Heptafederated Console", icon: Network, badge: "7" },
   { to: "/nexus", label: "Nexus Graph", icon: GitBranch },
   { to: "/atlas", label: "Atlas / Digital Twin", icon: Globe2 },
+  { to: "/atlas/metasystem", label: "Metasystem Map", icon: Atom, badge: "new" },
   { to: "/unification", label: "Source Unification", icon: ShieldCheck, badge: "9" },
 ];
 
