@@ -29,6 +29,7 @@ import { Route as CspOntologyRouteImport } from './routes/csp.ontology'
 import { Route as CspIngestionRouteImport } from './routes/csp.ingestion'
 import { Route as CspCanonRouteImport } from './routes/csp.canon'
 import { Route as CspAssemblyRouteImport } from './routes/csp.assembly'
+import { Route as AtlasMetasystemRouteImport } from './routes/atlas.metasystem'
 import { Route as AdminCanonRouteImport } from './routes/admin.canon'
 
 const WikisRoute = WikisRouteImport.update({
@@ -131,6 +132,11 @@ const CspAssemblyRoute = CspAssemblyRouteImport.update({
   path: '/csp/assembly',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AtlasMetasystemRoute = AtlasMetasystemRouteImport.update({
+  id: '/metasystem',
+  path: '/metasystem',
+  getParentRoute: () => AtlasRoute,
+} as any)
 const AdminCanonRoute = AdminCanonRouteImport.update({
   id: '/canon',
   path: '/canon',
@@ -140,7 +146,7 @@ const AdminCanonRoute = AdminCanonRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/atlas': typeof AtlasRoute
+  '/atlas': typeof AtlasRouteWithChildren
   '/auth': typeof AuthRoute
   '/console': typeof ConsoleRoute
   '/docs': typeof DocsRouteWithChildren
@@ -152,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/unification': typeof UnificationRoute
   '/wikis': typeof WikisRouteWithChildren
   '/admin/canon': typeof AdminCanonRoute
+  '/atlas/metasystem': typeof AtlasMetasystemRoute
   '/csp/assembly': typeof CspAssemblyRoute
   '/csp/canon': typeof CspCanonRoute
   '/csp/ingestion': typeof CspIngestionRoute
@@ -163,7 +170,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/atlas': typeof AtlasRoute
+  '/atlas': typeof AtlasRouteWithChildren
   '/auth': typeof AuthRoute
   '/console': typeof ConsoleRoute
   '/docs': typeof DocsRouteWithChildren
@@ -175,6 +182,7 @@ export interface FileRoutesByTo {
   '/unification': typeof UnificationRoute
   '/wikis': typeof WikisRouteWithChildren
   '/admin/canon': typeof AdminCanonRoute
+  '/atlas/metasystem': typeof AtlasMetasystemRoute
   '/csp/assembly': typeof CspAssemblyRoute
   '/csp/canon': typeof CspCanonRoute
   '/csp/ingestion': typeof CspIngestionRoute
@@ -187,7 +195,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/atlas': typeof AtlasRoute
+  '/atlas': typeof AtlasRouteWithChildren
   '/auth': typeof AuthRoute
   '/console': typeof ConsoleRoute
   '/docs': typeof DocsRouteWithChildren
@@ -199,6 +207,7 @@ export interface FileRoutesById {
   '/unification': typeof UnificationRoute
   '/wikis': typeof WikisRouteWithChildren
   '/admin/canon': typeof AdminCanonRoute
+  '/atlas/metasystem': typeof AtlasMetasystemRoute
   '/csp/assembly': typeof CspAssemblyRoute
   '/csp/canon': typeof CspCanonRoute
   '/csp/ingestion': typeof CspIngestionRoute
@@ -224,6 +233,7 @@ export interface FileRouteTypes {
     | '/unification'
     | '/wikis'
     | '/admin/canon'
+    | '/atlas/metasystem'
     | '/csp/assembly'
     | '/csp/canon'
     | '/csp/ingestion'
@@ -247,6 +257,7 @@ export interface FileRouteTypes {
     | '/unification'
     | '/wikis'
     | '/admin/canon'
+    | '/atlas/metasystem'
     | '/csp/assembly'
     | '/csp/canon'
     | '/csp/ingestion'
@@ -270,6 +281,7 @@ export interface FileRouteTypes {
     | '/unification'
     | '/wikis'
     | '/admin/canon'
+    | '/atlas/metasystem'
     | '/csp/assembly'
     | '/csp/canon'
     | '/csp/ingestion'
@@ -282,7 +294,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
-  AtlasRoute: typeof AtlasRoute
+  AtlasRoute: typeof AtlasRouteWithChildren
   AuthRoute: typeof AuthRoute
   ConsoleRoute: typeof ConsoleRoute
   DocsRoute: typeof DocsRouteWithChildren
@@ -442,6 +454,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CspAssemblyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/atlas/metasystem': {
+      id: '/atlas/metasystem'
+      path: '/metasystem'
+      fullPath: '/atlas/metasystem'
+      preLoaderRoute: typeof AtlasMetasystemRouteImport
+      parentRoute: typeof AtlasRoute
+    }
     '/admin/canon': {
       id: '/admin/canon'
       path: '/canon'
@@ -461,6 +480,16 @@ const AdminRouteChildren: AdminRouteChildren = {
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface AtlasRouteChildren {
+  AtlasMetasystemRoute: typeof AtlasMetasystemRoute
+}
+
+const AtlasRouteChildren: AtlasRouteChildren = {
+  AtlasMetasystemRoute: AtlasMetasystemRoute,
+}
+
+const AtlasRouteWithChildren = AtlasRoute._addFileChildren(AtlasRouteChildren)
 
 interface DocsRouteChildren {
   DocsSlugRoute: typeof DocsSlugRoute
@@ -485,7 +514,7 @@ const WikisRouteWithChildren = WikisRoute._addFileChildren(WikisRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
-  AtlasRoute: AtlasRoute,
+  AtlasRoute: AtlasRouteWithChildren,
   AuthRoute: AuthRoute,
   ConsoleRoute: ConsoleRoute,
   DocsRoute: DocsRouteWithChildren,

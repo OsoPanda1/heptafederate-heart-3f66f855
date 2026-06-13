@@ -86,6 +86,15 @@ const NG_META = {
 
 Object.assign(META, NG_META);
 
+Object.assign(META, {
+  "atlas-paradigmas-latam": {
+    repo: "TAMV / Atlas Doctrinal",
+    title: "Atlas TAMV · Paradigmas LATAM y Salto MD-X",
+    description:
+      "Manifiesto canónico — Partes I y II: paradigmas de la incapacidad LATAM, ruptura heptafederada y salto MD-X.",
+  },
+});
+
 const TAG_RULES: Array<{ tag: string; patterns: RegExp[] }> = [
   { tag: "arquitectura", patterns: [/arquitectura|architecture|c4 |stack/i] },
   { tag: "gobernanza", patterns: [/gobernanza|governance|rfc|policy|polic[ií]ticas/i] },
