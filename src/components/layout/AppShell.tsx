@@ -19,6 +19,7 @@ import {
   Database,
   Layers,
   PackageCheck,
+  UserCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -58,6 +59,7 @@ const RUNTIME: NavItem[] = [
 const KNOWLEDGE: NavItem[] = [
   { to: "/docs", label: "Documentation OS", icon: BookOpen },
   { to: "/wikis", label: "Wikis Canónicas", icon: BookOpen, badge: "5" },
+  { to: "/ceo", label: "CEO · Custodio", icon: UserCircle2, badge: "PID" },
   { to: "/auth", label: "Identity Layer", icon: Fingerprint },
 ];
 
