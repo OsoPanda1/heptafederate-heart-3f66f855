@@ -18,6 +18,7 @@ import { Route as EventsRouteImport } from './routes/events'
 import { Route as EoctRouteImport } from './routes/eoct'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as ConsoleRouteImport } from './routes/console'
+import { Route as CeoRouteImport } from './routes/ceo'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AtlasRouteImport } from './routes/atlas'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -75,6 +76,11 @@ const DocsRoute = DocsRouteImport.update({
 const ConsoleRoute = ConsoleRouteImport.update({
   id: '/console',
   path: '/console',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CeoRoute = CeoRouteImport.update({
+  id: '/ceo',
+  path: '/ceo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -148,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/atlas': typeof AtlasRouteWithChildren
   '/auth': typeof AuthRoute
+  '/ceo': typeof CeoRoute
   '/console': typeof ConsoleRoute
   '/docs': typeof DocsRouteWithChildren
   '/eoct': typeof EoctRoute
@@ -172,6 +179,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRouteWithChildren
   '/atlas': typeof AtlasRouteWithChildren
   '/auth': typeof AuthRoute
+  '/ceo': typeof CeoRoute
   '/console': typeof ConsoleRoute
   '/docs': typeof DocsRouteWithChildren
   '/eoct': typeof EoctRoute
@@ -197,6 +205,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/atlas': typeof AtlasRouteWithChildren
   '/auth': typeof AuthRoute
+  '/ceo': typeof CeoRoute
   '/console': typeof ConsoleRoute
   '/docs': typeof DocsRouteWithChildren
   '/eoct': typeof EoctRoute
@@ -223,6 +232,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/atlas'
     | '/auth'
+    | '/ceo'
     | '/console'
     | '/docs'
     | '/eoct'
@@ -247,6 +257,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/atlas'
     | '/auth'
+    | '/ceo'
     | '/console'
     | '/docs'
     | '/eoct'
@@ -271,6 +282,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/atlas'
     | '/auth'
+    | '/ceo'
     | '/console'
     | '/docs'
     | '/eoct'
@@ -296,6 +308,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AtlasRoute: typeof AtlasRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CeoRoute: typeof CeoRoute
   ConsoleRoute: typeof ConsoleRoute
   DocsRoute: typeof DocsRouteWithChildren
   EoctRoute: typeof EoctRoute
@@ -375,6 +388,13 @@ declare module '@tanstack/react-router' {
       path: '/console'
       fullPath: '/console'
       preLoaderRoute: typeof ConsoleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ceo': {
+      id: '/ceo'
+      path: '/ceo'
+      fullPath: '/ceo'
+      preLoaderRoute: typeof CeoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -516,6 +536,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AtlasRoute: AtlasRouteWithChildren,
   AuthRoute: AuthRoute,
+  CeoRoute: CeoRoute,
   ConsoleRoute: ConsoleRoute,
   DocsRoute: DocsRouteWithChildren,
   EoctRoute: EoctRoute,
