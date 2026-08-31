@@ -14,7 +14,7 @@ import { NexusGraph } from "@/components/nexus/NexusGraph";
 import { EVENTS, FEDERATIONS, KPI, TOMOS } from "@/lib/tamv-data";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/kodex")({
   head: () => ({
     meta: [
       { title: "Kodex Home · TAMV Core" },
