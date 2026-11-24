@@ -173,9 +173,29 @@ Variables clave:
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `TAMV_ORCID`, `TAMV_ZENODO_RECORD`, `TAMV_ISNI`
+- `TAMV_SIGNING_SEED` (obligatoria: 32 bytes aleatorios en hexadecimal)
+- `TAMV_CORS_ALLOWED_ORIGIN` (opcional: origen exacto para frontend separado)
 
 ---
 
-## 10) Estado ejecutivo
+## 10) Clave de firma y CORS
+
+El backend utiliza **Ed25519** para firmar y verificar. ML-DSA/PQC permanece como hoja de ruta y no está activado como algoritmo de firma.
+
+`TAMV_SIGNING_SEED` es obligatoria y debe contener exactamente 64 caracteres hexadecimales que representen 32 bytes generados aleatoriamente. Desde ese secreto se deriva una clave Ed25519 estable; el `keyId` se calcula con la huella de la clave pública, no con un valor predeterminado conocido. No reutilices la misma semilla entre entornos ni la guardes en Git.
+
+Genera una semilla local con Node.js:
+
+```bash
+node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+```
+
+Guarda el resultado únicamente en el gestor de secretos del entorno de ejecución. El ejemplo de Kubernetes contiene un marcador deliberadamente inválido hasta que el operador lo sustituya.
+
+**Compatibilidad de firmas previas:** las firmas anteriores a esta corrección usaban claves Ed25519 efímeras no persistidas. No se garantiza que continúen siendo verificables tras reiniciar o migrar; conserva las claves públicas históricas disponibles y verifica los registros firmados durante la migración.
+
+Para un frontend alojado en otro origen, define `TAMV_CORS_ALLOWED_ORIGIN` con un origen HTTP(S) exacto, sin ruta ni credenciales. En producción, si la variable no está definida, el backend no concede CORS a orígenes web externos; los clientes del mismo origen siguen funcionando. El comodín `*` solo se permite fuera de producción. La postura de seguridad seguirá en estado `degraded` si falta una semilla válida, la triangulación de PIDs, la persistencia o CORS restringido.
+
+## 11) Estado ejecutivo
 
 **TAMV Atlas hoy es un sistema real funcional en evolución**, con capacidad de operar casos de uso concretos y base suficientemente robusta para pilotos serios. Su siguiente salto no depende de “más idea”, sino de **industrialización técnica** (hardening, observabilidad, CI/CD y seguridad operativa).

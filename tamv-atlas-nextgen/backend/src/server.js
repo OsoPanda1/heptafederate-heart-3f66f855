@@ -55,7 +55,8 @@ function setupSse(res) {
     'content-type': 'text/event-stream; charset=utf-8',
     'cache-control': 'no-cache, no-transform',
     connection: 'keep-alive',
-    'access-control-allow-origin': '*',
+    'access-control-allow-origin': corsAllowedOrigin,
+    'vary': 'Origin',
   });
   res.write(': connected\n\n');
 }
@@ -66,17 +67,27 @@ function emitSse(res, event, payload) {
 }
 
 function buildSecurityPosture() {
-  const hasStrongSeed = Boolean(config.signing.seed && config.signing.seed.length >= 16);
-  const hasPidTriangulation = Boolean(config.pid.orcid && config.pid.zenodoRecord && config.pid.isni);
-  const corsMode = process.env.TAMV_CORS_MODE ?? 'open';
+  const hasValidSeed = /^[0-9a-f]{64}$/i.test(config.signing.seed);
+  const hasPidTriangulation = Boolean(config.pids.orcid && config.pids.zenodoRecord && config.pids.isni);
+  const hasRestrictedCors = corsAllowedOrigin !== '*';
+  const controlsPassed = [
+    hasValidSeed,
+    hasPidTriangulation,
+    hasPersistence,
+    hasRestrictedCors,
+  ].filter(Boolean).length;
+
   return {
-    status: hasStrongSeed && hasPidTriangulation ? 'hardened' : 'degraded',
-    antifragilityScore: [hasStrongSeed, hasPidTriangulation, hasPersistence].filter(Boolean).length / 3,
+    status: controlsPassed === 4 ? 'hardened' : 'degraded',
+    antifragilityScore: controlsPassed / 4,
     controls: {
-      pqcSigningSeed: hasStrongSeed ? 'ok' : 'weak',
+      signingKeyMaterial: hasValidSeed ? 'valid_32_byte_seed' : 'invalid_or_missing',
+      activeSignatureAlgorithm: signingEngine.profile.activeAlgorithm,
+      pqcSigningSeed: 'not_enabled',
+      postQuantumSignature: 'not_enabled',
       pidTriangulation: hasPidTriangulation ? 'ok' : 'missing',
       persistenceAuditTrail: hasPersistence ? 'ok' : 'disabled',
-      cors: corsMode,
+      cors: hasRestrictedCors ? 'restricted' : 'open',
     },
     checkedAt: new Date().toISOString(),
   };
@@ -104,11 +115,50 @@ function requirePersistence(res) {
   return false;
 }
 
+function resolveCorsAllowedOrigin() {
+  const configuredOrigin = process.env.TAMV_CORS_ALLOWED_ORIGIN?.trim();
+  if (!configuredOrigin) {
+    // Same-origin clients need no CORS grant. Keep wildcard only outside production.
+    return config.environment === 'production' ? 'null' : '*';
+  }
+
+  if (configuredOrigin === '*') {
+    if (config.environment === 'production') {
+      throw new Error('TAMV_CORS_ALLOWED_ORIGIN must not be wildcard in production.');
+    }
+    return '*';
+  }
+
+  let parsed;
+  try {
+    parsed = new URL(configuredOrigin);
+  } catch {
+    throw new Error('TAMV_CORS_ALLOWED_ORIGIN must be an absolute HTTP(S) origin.');
+  }
+
+  if (
+    !['http:', 'https:'].includes(parsed.protocol) ||
+    parsed.origin !== configuredOrigin ||
+    parsed.pathname !== '/' ||
+    parsed.search ||
+    parsed.hash ||
+    parsed.username ||
+    parsed.password
+  ) {
+    throw new Error('TAMV_CORS_ALLOWED_ORIGIN must contain only an HTTP(S) origin, without path or credentials.');
+  }
+
+  return parsed.origin;
+}
+
+const corsAllowedOrigin = resolveCorsAllowedOrigin();
+
 function writeJson(res, statusCode, payload) {
   res.writeHead(statusCode, {
     'content-type': 'application/json; charset=utf-8',
     'cache-control': 'no-store',
-    'access-control-allow-origin': '*',
+    'access-control-allow-origin': corsAllowedOrigin,
+    'vary': 'Origin',
     'access-control-allow-methods': 'GET,POST,OPTIONS',
     'access-control-allow-headers': 'content-type',
   });

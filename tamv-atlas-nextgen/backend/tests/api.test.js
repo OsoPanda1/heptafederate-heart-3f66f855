@@ -8,6 +8,8 @@ process.env.TAMV_ZENODO_RECORD = '19436662';
 process.env.TAMV_ISNI = 'TAMV-ONLINE-0001';
 process.env.TAMV_ORG_NAME = 'TAMV Online - Infraestructura Soberana';
 process.env.TAMV_FOUNDER_NAME = 'Edwin Oswaldo Castillo Trejo';
+process.env.TAMV_SIGNING_SEED = '0123456789abcdef'.repeat(4);
+process.env.TAMV_CORS_ALLOWED_ORIGIN = '*';
 process.env.PORT = '8091';
 
 const { startServer } = await import('../src/server.js');
@@ -33,6 +35,12 @@ test('GET /v1/security/posture returns controls and score', async () => {
   assert.equal(typeof data.antifragilityScore, 'number');
   assert.ok(data.controls);
   assert.equal(data.controls.pidTriangulation, 'ok');
+  assert.equal(data.controls.signingKeyMaterial, 'valid_32_byte_seed');
+  assert.equal(data.controls.activeSignatureAlgorithm, 'Ed25519');
+  assert.equal(data.controls.pqcSigningSeed, 'not_enabled');
+  assert.equal(data.controls.postQuantumSignature, 'not_enabled');
+  assert.equal(data.controls.cors, 'open');
+  assert.equal(data.status, 'degraded');
 });
 
 test('sign + verify cycle should be valid', async () => {
