@@ -67,11 +67,11 @@ function emitSse(res, event, payload) {
 }
 
 function buildSecurityPosture() {
-  const hasStrongSeed = /^[0-9a-f]{64}$/i.test(config.signing.seed);
+  const hasValidSeed = /^[0-9a-f]{64}$/i.test(config.signing.seed);
   const hasPidTriangulation = Boolean(config.pids.orcid && config.pids.zenodoRecord && config.pids.isni);
   const hasRestrictedCors = corsAllowedOrigin !== '*';
   const controlsPassed = [
-    hasStrongSeed,
+    hasValidSeed,
     hasPidTriangulation,
     hasPersistence,
     hasRestrictedCors,
@@ -81,7 +81,7 @@ function buildSecurityPosture() {
     status: controlsPassed === 4 ? 'hardened' : 'degraded',
     antifragilityScore: controlsPassed / 4,
     controls: {
-      signingKeyMaterial: hasStrongSeed ? 'valid_32_byte_seed' : 'invalid_or_missing',
+      signingKeyMaterial: hasValidSeed ? 'valid_32_byte_seed' : 'invalid_or_missing',
       activeSignatureAlgorithm: signingEngine.profile.activeAlgorithm,
       pqcSigningSeed: 'not_enabled',
       postQuantumSignature: 'not_enabled',
