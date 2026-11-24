@@ -34,6 +34,12 @@ test('GET /v1/security/posture returns controls and score', async () => {
   assert.equal(typeof data.antifragilityScore, 'number');
   assert.ok(data.controls);
   assert.equal(data.controls.pidTriangulation, 'ok');
+  assert.equal(data.controls.signingKeyMaterial, 'valid_32_byte_seed');
+  assert.equal(data.controls.activeSignatureAlgorithm, 'Ed25519');
+  assert.equal(data.controls.pqcSigningSeed, 'not_enabled');
+  assert.equal(data.controls.postQuantumSignature, 'not_enabled');
+  assert.equal(data.controls.cors, 'open');
+  assert.equal(data.status, 'degraded');
 });
 
 test('sign + verify cycle should be valid', async () => {
