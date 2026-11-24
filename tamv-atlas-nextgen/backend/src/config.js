@@ -6,12 +6,19 @@ const requiredEnv = [
   'TAMV_ISNI',
   'TAMV_ORG_NAME',
   'TAMV_FOUNDER_NAME',
+  'TAMV_SIGNING_SEED',
 ];
 
 for (const key of requiredEnv) {
   if (!process.env[key]) {
     throw new Error(`Missing required environment variable: ${key}`);
   }
+}
+
+if (!/^[0-9a-f]{64}$/i.test(process.env.TAMV_SIGNING_SEED ?? '')) {
+  throw new Error(
+    'TAMV_SIGNING_SEED must be 64 hexadecimal characters representing 32 random bytes.',
+  );
 }
 
 export const config = {
@@ -39,6 +46,6 @@ export const config = {
       process.env.TAMV_DID_SERVICE_ENDPOINT ?? 'https://isni.tamv.online/resolve',
   },
   signing: {
-    seed: process.env.TAMV_SIGNING_SEED ?? 'tamv-kernel-isabella-2026',
+    seed: process.env.TAMV_SIGNING_SEED,
   },
 };
